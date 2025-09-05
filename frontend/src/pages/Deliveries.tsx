@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, Eye, Package, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, CheckCircle } from 'lucide-react';
 import DeliveryForm from '../components/DeliveryForm';
 
 interface Delivery {

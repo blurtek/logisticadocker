@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Search, Package, MapPin, Clock, Phone, Calendar, User, AlertCircle } from 'lucide-react';
+import { Search, Package, MapPin, Clock, Calendar, User, AlertCircle } from 'lucide-react';
 
 interface DeliveryStatus {
   id: string;

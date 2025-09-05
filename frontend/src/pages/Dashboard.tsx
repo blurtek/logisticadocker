@@ -7,7 +7,7 @@ import getDay from 'date-fns/getDay';
 import { es } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
-import { Plus, Clock, MapPin, Phone, Package, TrendingUp, AlertCircle, CheckCircle, Euro, AlertTriangle, DollarSign } from 'lucide-react';
+import { Plus, Clock, MapPin, Phone, Package, TrendingUp, AlertCircle, CheckCircle, AlertTriangle, DollarSign } from 'lucide-react';
 import DeliveryForm from '../components/DeliveryForm';
 
 const localizer = dateFnsLocalizer({
