@@ -1,0 +1,28 @@
+# Archivo de configuración para Plesk
+# Copiar a .env y configurar con tus valores
+
+# Base de datos PostgreSQL
+DATABASE_URL=postgresql://muebleswow:tu_password_seguro@localhost:5432/muebleswow
+
+# Autenticación JWT
+JWT_SECRET=tu_jwt_secret_super_seguro_cambiar_en_produccion
+
+# Entorno
+NODE_ENV=production
+PORT=3000
+
+# URLs de la aplicación
+FRONTEND_URL=https://muebleswow.tudominio.com
+PUBLIC_URL=https://muebleswow.tudominio.com/client
+
+# Configuración de CORS
+CORS_ORIGIN=https://muebleswow.tudominio.com
+
+# Configuración de logs
+LOG_LEVEL=info
+LOG_FILE=./logs/app.log
+
+# Configuración de backup
+BACKUP_ENABLED=true
+BACKUP_SCHEDULE=0 2 * * *
+BACKUP_RETENTION_DAYS=30
