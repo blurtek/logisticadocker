@@ -92,3 +92,7 @@ if (allGood) {
 
 console.log('\n🚀 Para probar manualmente:');
 console.log('node app.js');
+console.log('\n📋 URLs de prueba:');
+console.log('• Panel Admin: http://localhost:3000');
+console.log('• Panel Clientes: http://localhost:3000/client');
+console.log('• API Health: http://localhost:3000/health');
