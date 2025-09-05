@@ -14,7 +14,7 @@ RUN mkdir -p /app /var/log/nginx /var/cache/nginx /etc/nginx
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos de configuración
+# Copiar archivos de configuración primero
 COPY nginx-simple.conf /etc/nginx/nginx.conf
 COPY nginx/mime.types /etc/nginx/mime.types
 COPY start.sh /app/start.sh
