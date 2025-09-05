@@ -40,10 +40,10 @@ install_app() {
     # Crear directorio de logs
     mkdir -p logs
     
-    # Instalar dependencias principales
+    # Instalar todas las dependencias
+    echo -e "${YELLOW}📦 Instalando dependencias principales...${NC}"
     npm install
     
-    # Instalar dependencias de cada módulo
     echo -e "${YELLOW}📦 Instalando dependencias del backend...${NC}"
     cd backend && npm install && cd ..
     
