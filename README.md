@@ -1,84 +1,222 @@
-# 🚚 MueblesWOW Logística
+# MueblesWow - Despliegue con Docker
 
-Sistema de gestión de entregas y recogidas para MueblesWOW - Dockerizado para Coolify
+Este directorio contiene toda la configuración necesaria para desplegar MueblesWow usando Docker y Docker Compose.
 
-## 🐳 Dockerización
+## 🚀 Despliegue Rápido
 
-Este proyecto está completamente dockerizado y listo para deployment en Coolify.
-
-### Archivos Docker incluidos:
-
-- `Dockerfile` - Imagen multi-stage optimizada para producción
-- `docker-compose.yml` - Configuración para desarrollo y producción
-- `nginx.conf` - Configuración de Nginx para servir la aplicación
-- `.dockerignore` - Archivos excluidos del build
-
-### 🚀 Deployment en Coolify
-
-1. **Sube el código a tu repositorio Git**
-2. **En Coolify:**
-   - Crea un nuevo proyecto
-   - Conecta tu repositorio
-   - Coolify detectará automáticamente el Dockerfile
-   - Configura las variables de entorno si es necesario
-   - Deploy!
-
-### 🛠️ Desarrollo Local
-
+### Opción 1: Script Automático
 ```bash
-# Instalar dependencias
-npm install
-
-# Desarrollo
-npm run dev
-
-# Build para producción
-npm run build
-
-# Preview de producción
-npm run preview
+./deploy.sh
 ```
 
-### 🐳 Docker Local
-
+### Opción 2: Manual
 ```bash
-# Build de la imagen
-docker build -t muebleswow-logistica .
+# 1. Configurar variables de entorno
+cp env.example .env
+# Editar .env con tus configuraciones
 
-# Ejecutar contenedor
-docker run -p 3000:80 muebleswow-logistica
+# 2. Construir y levantar servicios
+docker-compose up --build -d
 
-# Con docker-compose
-docker-compose up --build
+# 3. Ejecutar migraciones
+docker-compose exec backend npx prisma migrate deploy
+
+# 4. Ejecutar seed
+docker-compose exec backend npx prisma db seed
 ```
 
-### 📋 Características
+## 📋 Servicios Incluidos
 
-- ✅ **Frontend-only**: Sin backend, todo en el cliente
-- ✅ **PWA Ready**: Preparado para Progressive Web App
-- ✅ **Mobile-first**: Diseño responsive
-- ✅ **Dockerizado**: Listo para Coolify
-- ✅ **Optimizado**: Build multi-stage con Nginx
-- ✅ **Health Check**: Endpoint `/health` incluido
+- **PostgreSQL**: Base de datos principal
+- **Backend**: API REST con Node.js y Express
+- **Frontend**: Panel de administración (React + Vite)
+- **Public**: Panel público para clientes (React + Vite)
+- **Nginx**: Proxy reverso y servidor web
 
-### 🔧 Tecnologías
+## 🌐 URLs de Acceso
 
-- React 18 + TypeScript
-- Vite (build tool)
-- Tailwind CSS
-- React Router
-- Zustand (state management)
-- IndexedDB (persistencia local)
+- **Panel Admin**: http://localhost:3000
+- **Panel Clientes**: http://localhost:3002
+- **Backend API**: http://localhost:3001
+- **Nginx Proxy**: http://localhost:80
 
-### 📱 Funcionalidades (En desarrollo)
+## 🔑 Credenciales por Defecto
 
-- 📅 Calendario de entregas
-- 👥 Gestión de transportistas
-- 📦 Seguimiento de pedidos
-- 📊 Dashboard administrativo
-- 🔍 Búsqueda de clientes
-- 📱 Vista móvil optimizada
+- **Usuario**: `admin`
+- **Contraseña**: `muebleswow`
 
----
+## ⚙️ Configuración
 
-**Estado**: 🟡 En desarrollo - Dockerizado y listo para Coolify
+### Variables de Entorno
+
+Edita el archivo `.env` con tus configuraciones:
+
+```env
+# Base de datos
+POSTGRES_PASSWORD=tu-password-seguro
+
+# JWT Secret
+JWT_SECRET=tu-jwt-secret-muy-seguro
+
+# URLs de la API
+VITE_API_URL=http://tu-dominio.com:3001
+```
+
+### Dominios Personalizados
+
+Para usar dominios personalizados, edita `nginx/nginx.conf`:
+
+```nginx
+server {
+    listen 80;
+    server_name tu-dominio.com;
+    # ... resto de la configuración
+}
+```
+
+## 🛠️ Comandos Útiles
+
+### Ver logs
+```bash
+# Todos los servicios
+docker-compose logs -f
+
+# Servicio específico
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f postgres
+```
+
+### Reiniciar servicios
+```bash
+# Reiniciar todos
+docker-compose restart
+
+# Reiniciar servicio específico
+docker-compose restart backend
+```
+
+### Acceder a contenedores
+```bash
+# Backend
+docker-compose exec backend sh
+
+# Base de datos
+docker-compose exec postgres psql -U muebleswow -d muebleswow
+```
+
+### Backup de base de datos
+```bash
+docker-compose exec postgres pg_dump -U muebleswow muebleswow > backup.sql
+```
+
+### Restaurar base de datos
+```bash
+docker-compose exec -T postgres psql -U muebleswow -d muebleswow < backup.sql
+```
+
+## 🔧 Mantenimiento
+
+### Actualizar aplicación
+```bash
+# Detener servicios
+docker-compose down
+
+# Actualizar código
+git pull
+
+# Reconstruir y levantar
+docker-compose up --build -d
+
+# Ejecutar migraciones si es necesario
+docker-compose exec backend npx prisma migrate deploy
+```
+
+### Limpiar sistema
+```bash
+# Eliminar contenedores y volúmenes
+docker-compose down -v
+
+# Limpiar imágenes no utilizadas
+docker system prune -a
+```
+
+## 🚨 Solución de Problemas
+
+### Puerto ya en uso
+```bash
+# Ver qué proceso usa el puerto
+sudo netstat -tulpn | grep :3000
+
+# Cambiar puertos en docker-compose.yml
+```
+
+### Error de permisos
+```bash
+# Dar permisos al script
+chmod +x deploy.sh
+
+# Ejecutar con sudo si es necesario
+sudo docker-compose up --build -d
+```
+
+### Base de datos no conecta
+```bash
+# Verificar que PostgreSQL esté corriendo
+docker-compose ps postgres
+
+# Ver logs de la base de datos
+docker-compose logs postgres
+```
+
+## 📊 Monitoreo
+
+### Estado de servicios
+```bash
+docker-compose ps
+```
+
+### Uso de recursos
+```bash
+docker stats
+```
+
+### Health checks
+```bash
+# Backend
+curl http://localhost:3001/health
+
+# Frontend
+curl http://localhost:3000
+
+# Panel público
+curl http://localhost:3002
+```
+
+## 🔒 Seguridad
+
+### Cambiar credenciales por defecto
+1. Accede al panel admin
+2. Ve a Configuración
+3. Cambia usuario y contraseña
+
+### Configurar SSL
+1. Coloca certificados en `nginx/ssl/`
+2. Descomenta configuración SSL en `nginx/nginx.conf`
+3. Reinicia nginx: `docker-compose restart nginx`
+
+## 📝 Notas Importantes
+
+- Los datos de la base de datos se persisten en el volumen `postgres_data`
+- Los logs se guardan en `nginx/logs/`
+- Para producción, cambia todas las contraseñas por defecto
+- Configura un dominio real y certificados SSL
+- Considera usar un proxy reverso externo (Cloudflare, etc.)
+
+## 🆘 Soporte
+
+Si tienes problemas:
+1. Revisa los logs: `docker-compose logs -f`
+2. Verifica la configuración en `.env`
+3. Asegúrate de que los puertos estén libres
+4. Revisa que Docker tenga suficientes recursos

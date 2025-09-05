@@ -1,128 +1,186 @@
-# 🚀 GUÍA DE DEPLOYMENT EN COOLIFY
+# 🚀 Despliegue en Coolify - MueblesWow
 
-## 📋 ARCHIVOS INCLUIDOS
+Esta carpeta contiene toda la configuración necesaria para desplegar MueblesWow en Coolify.
 
-Esta carpeta contiene todos los archivos necesarios para desplegar **MueblesWOW Logística** en Coolify:
+## 📋 Pasos para Desplegar en Coolify
 
-### ✅ Archivos Críticos para Coolify:
-- `Dockerfile` - Imagen Docker multi-stage
-- `docker-compose.yml` - Configuración de servicios
-- `nginx.conf` - Configuración del servidor web
-- `.dockerignore` - Archivos excluidos del build
-- `package.json` - Dependencias del proyecto
-
-### ✅ Archivos de Configuración:
-- `vite.config.ts` - Configuración de Vite
-- `tsconfig.json` - Configuración TypeScript
-- `tailwind.config.js` - Configuración Tailwind CSS
-- `postcss.config.js` - Configuración PostCSS
-- `index.html` - Punto de entrada HTML
-
-### ✅ Código Fuente:
-- `src/` - Código fuente React/TypeScript
-- `README.md` - Documentación del proyecto
-
-## 🐳 PASOS PARA DEPLOYMENT
-
-### 1️⃣ SUBIR A GIT
+### 1. Preparar el Repositorio
 ```bash
-# Inicializar repositorio
+# Crear un nuevo repositorio Git solo con la carpeta coolify
+cd coolify
 git init
-
-# Agregar todos los archivos
 git add .
-
-# Commit inicial
-git commit -m "MueblesWOW Logística - Listo para Coolify"
-
-# Conectar con repositorio remoto
-git remote add origin https://github.com/tu-usuario/muebleswow-logistica.git
-
-# Subir al repositorio
+git commit -m "Initial commit: MueblesWow Docker deployment"
+git remote add origin https://github.com/tu-usuario/muebleswow-coolify.git
 git push -u origin main
 ```
 
-### 2️⃣ CONFIGURAR EN COOLIFY
+### 2. Configurar en Coolify
 
-#### Crear Nuevo Proyecto:
-1. **Source**: Git Repository
-2. **Repository URL**: `https://github.com/tu-usuario/muebleswow-logistica.git`
-3. **Branch**: `main`
-4. **Build Pack**: `Dockerfile` (auto-detectado)
+1. **Crear nuevo proyecto** en Coolify
+2. **Conectar repositorio** Git
+3. **Seleccionar rama** `main`
+4. **Configurar variables de entorno**:
+   ```env
+   POSTGRES_PASSWORD=tu-password-seguro
+   JWT_SECRET=tu-jwt-secret-muy-seguro
+   VITE_API_URL=https://tu-dominio.com
+   NODE_ENV=production
+   ```
 
-#### Configuración del Proyecto:
-- **Project Name**: `muebleswow-logistica`
-- **Domain**: Tu dominio personalizado
-- **Port**: Dejar vacío (Nginx usa puerto 80)
+### 3. Configuración de Dominio
 
-#### Variables de Entorno:
+#### Opción A: Subdominios
+- **Panel Admin**: `admin.tu-dominio.com`
+- **Panel Clientes**: `public.tu-dominio.com`
+- **API**: `api.tu-dominio.com`
+
+#### Opción B: Rutas
+- **Panel Admin**: `tu-dominio.com/`
+- **Panel Clientes**: `tu-dominio.com/public/`
+- **API**: `tu-dominio.com/api/`
+
+### 4. Configuración SSL
+
+Coolify maneja automáticamente los certificados SSL, pero puedes configurar:
+
+```nginx
+# En nginx/nginx.conf
+server {
+    listen 443 ssl http2;
+    server_name tu-dominio.com;
+    
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+    # ... resto de configuración
+}
 ```
+
+## 🔧 Configuración Avanzada
+
+### Variables de Entorno Recomendadas
+
+```env
+# Base de datos
+POSTGRES_PASSWORD=password-super-seguro-2024
+POSTGRES_DB=muebleswow
+POSTGRES_USER=muebleswow
+
+# JWT
+JWT_SECRET=jwt-secret-muy-largo-y-seguro-para-produccion
+
+# URLs
+VITE_API_URL=https://api.tu-dominio.com
 NODE_ENV=production
+
+# Opcional: Configuración de email
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=tu-email@gmail.com
+SMTP_PASS=tu-password-app
 ```
 
-### 3️⃣ DEPLOYMENT
-1. Haz clic en **"Deploy"**
-2. Espera a que termine el build (2-5 minutos)
-3. Verifica que la aplicación esté funcionando
+### Configuración de Recursos
 
-## 🔍 VERIFICACIÓN
+En Coolify, configura:
+- **CPU**: Mínimo 1 vCPU
+- **RAM**: Mínimo 2GB
+- **Almacenamiento**: Mínimo 10GB
 
-### URLs para probar:
-- **Aplicación**: `https://tu-dominio.com`
-- **Health Check**: `https://tu-dominio.com/health`
+### Configuración de Red
 
-### Logs importantes:
-- **Build Logs**: Progreso de construcción
-- **Deploy Logs**: Progreso de despliegue
-- **Container Logs**: Logs de la aplicación
+- **Puerto 80**: HTTP
+- **Puerto 443**: HTTPS
+- **Puerto 3001**: Backend API (opcional, para acceso directo)
 
-## 🛠️ TROUBLESHOOTING
+## 📊 Monitoreo y Logs
 
-### Si el build falla:
-1. Verifica que el `Dockerfile` esté en la raíz
-2. Revisa los logs de build en Coolify
-3. Asegúrate de que todas las dependencias estén en `package.json`
+### Ver Logs en Coolify
+1. Ve a tu proyecto en Coolify
+2. Selecciona el servicio
+3. Ve a la pestaña "Logs"
 
-### Si la aplicación no carga:
-1. Verifica los logs del contenedor
-2. Comprueba que Nginx esté corriendo
-3. Revisa la configuración de dominio
+### Health Checks
+- **Backend**: `GET /health`
+- **Frontend**: `GET /`
+- **Panel Público**: `GET /public/`
 
-### Comandos útiles en Coolify:
+## 🔄 Actualizaciones
+
+### Actualizar Aplicación
+1. Haz cambios en tu código
+2. Commit y push a Git
+3. Coolify detectará automáticamente los cambios
+4. Se reconstruirá y redesplegará automáticamente
+
+### Actualizar Base de Datos
 ```bash
-# Ver logs del contenedor
-docker logs nombre-contenedor
+# Acceder al contenedor del backend
+docker exec -it muebleswow-backend sh
 
-# Entrar al contenedor
-docker exec -it nombre-contenedor sh
+# Ejecutar migraciones
+npx prisma migrate deploy
 
-# Verificar procesos
-ps aux | grep nginx
+# Ejecutar seed (si es necesario)
+npx prisma db seed
 ```
 
-## 📱 CARACTERÍSTICAS DE LA APLICACIÓN
+## 🛡️ Seguridad
 
-- ✅ **Frontend-only**: Sin backend requerido
-- ✅ **PWA Ready**: Preparado para Progressive Web App
-- ✅ **Mobile-first**: Diseño responsive
-- ✅ **Dockerizado**: Optimizado para contenedores
-- ✅ **Health Check**: Monitoreo incluido
-- ✅ **Nginx**: Servidor web optimizado
-- ✅ **Compresión**: Gzip habilitado
-- ✅ **Cache**: Archivos estáticos cacheados
-- ✅ **Seguridad**: Headers de seguridad configurados
+### Configuraciones Recomendadas
 
-## 🎯 PRÓXIMOS PASOS
+1. **Cambiar credenciales por defecto**:
+   - Usuario admin: `admin`
+   - Contraseña: `muebleswow` → Cambiar por una segura
 
-Una vez desplegado, puedes:
-1. Configurar dominio personalizado
-2. Habilitar SSL/HTTPS
-3. Configurar monitoreo
-4. Implementar CI/CD automático
-5. Agregar más funcionalidades
+2. **Configurar firewall**:
+   - Solo puertos 80 y 443 abiertos
+   - Restringir acceso a puerto 3001
 
----
+3. **Backup automático**:
+   ```bash
+   # Script de backup diario
+   docker exec muebleswow-postgres pg_dump -U muebleswow muebleswow > backup-$(date +%Y%m%d).sql
+   ```
 
-**Estado**: 🟢 Listo para deployment en Coolify
-**Versión**: 1.0.0
-**Última actualización**: $(date)
+## 🚨 Solución de Problemas
+
+### Error de Conexión a Base de Datos
+```bash
+# Verificar que PostgreSQL esté corriendo
+docker-compose ps postgres
+
+# Ver logs
+docker-compose logs postgres
+```
+
+### Error de Permisos
+```bash
+# Verificar permisos de archivos
+ls -la
+
+# Cambiar permisos si es necesario
+chmod +x deploy.sh
+```
+
+### Error de Memoria
+- Aumentar RAM en Coolify
+- Optimizar consultas de base de datos
+- Limpiar logs antiguos
+
+## 📞 Soporte
+
+Si tienes problemas:
+1. Revisa los logs en Coolify
+2. Verifica las variables de entorno
+3. Asegúrate de que el dominio esté configurado correctamente
+4. Contacta al soporte de Coolify si es necesario
+
+## 🎯 URLs Finales
+
+Después del despliegue:
+- **Panel Admin**: `https://admin.tu-dominio.com` o `https://tu-dominio.com`
+- **Panel Clientes**: `https://public.tu-dominio.com` o `https://tu-dominio.com/public`
+- **API**: `https://api.tu-dominio.com` o `https://tu-dominio.com/api`
+
+¡Tu sistema MueblesWow estará listo para producción! 🎉
