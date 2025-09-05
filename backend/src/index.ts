@@ -6,14 +6,18 @@ import { authRoutes } from './routes/auth';
 import { deliveryRoutes } from './routes/deliveries';
 import { publicRoutes } from './routes/public';
 import { errorHandler } from './middleware/errorHandler';
+import { cspMiddleware } from './middleware/csp';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware de seguridad
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false // Deshabilitamos helmet CSP para usar el nuestro
+}));
+app.use(cspMiddleware); // Nuestro middleware CSP personalizado
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3002'],
+  origin: ['http://localhost:3000', 'http://localhost:3002', 'https://logistica.muebleswow.com'],
   credentials: true
 }));
 
