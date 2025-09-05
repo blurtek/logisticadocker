@@ -1,0 +1,36 @@
+# Dockerfile de prueba simple para diagnosticar problemas
+FROM nginx:alpine
+
+# Crear una página HTML simple
+RUN echo '<!DOCTYPE html>
+<html>
+<head>
+    <title>MueblesWow - Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .success { color: #28a745; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="success">🎉 MueblesWow - Test Exitoso</h1>
+        <p class="info">Si puedes ver esta página, el contenedor está funcionando correctamente.</p>
+        <p>Timestamp: <script>document.write(new Date().toISOString());</script></p>
+        <hr>
+        <h2>Próximos pasos:</h2>
+        <ul style="text-align: left;">
+            <li>✅ Contenedor ejecutándose</li>
+            <li>✅ Nginx funcionando</li>
+            <li>✅ Puerto 80 accesible</li>
+            <li>🔄 Configurar aplicación completa</li>
+        </ul>
+    </div>
+</body>
+</html>' > /usr/share/nginx/html/index.html
+
+# Exponer puerto 80
+EXPOSE 80
+
+# Nginx ya está configurado para ejecutarse automáticamente
