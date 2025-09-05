@@ -4,12 +4,13 @@ Este directorio contiene toda la configuración necesaria para desplegar Muebles
 
 ## 🚀 Despliegue Rápido
 
-### Opción 1: Script Automático
-```bash
-./deploy.sh
-```
+### Opción 1: Coolify (Recomendado)
+1. **Subir a Git**: Sube la carpeta `coolify` a un repositorio Git
+2. **En Coolify**: Conecta el repositorio y configura las variables de entorno
+3. **Desplegar**: Coolify manejará todo automáticamente
+4. **Ver**: `COOLIFY-SETUP.md` para instrucciones detalladas
 
-### Opción 2: Manual
+### Opción 2: Docker Compose Local
 ```bash
 # 1. Configurar variables de entorno
 cp env.example .env
@@ -23,6 +24,15 @@ docker-compose exec backend npx prisma migrate deploy
 
 # 4. Ejecutar seed
 docker-compose exec backend npx prisma db seed
+```
+
+### Opción 3: Contenedor Único (Coolify)
+```bash
+# Construir imagen única
+docker build -t muebleswow .
+
+# Ejecutar contenedor
+docker run -p 80:80 -e POSTGRES_PASSWORD=tu-password muebleswow
 ```
 
 ## 📋 Servicios Incluidos
