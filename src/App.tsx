@@ -1,33 +1,35 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Deliveries from './pages/Deliveries';
+import Settings from './pages/Settings';
+import Layout from './components/Layout';
+
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+};
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50">
+    <AuthProvider>
+      <Router>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={
-            <div className="flex items-center justify-center min-h-screen">
-              <div className="text-center">
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                  🚚 MueblesWOW Logística
-                </h1>
-                <p className="text-lg text-gray-600 mb-8">
-                  Sistema de gestión de entregas y recogidas
-                </p>
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <p className="text-green-600 font-semibold">
-                    ✅ Aplicación dockerizada y lista para Coolify
-                  </p>
-                </div>
-              </div>
-            </div>
-          } />
+            <PrivateRoute>
+              <Layout />
+            </PrivateRoute>
+          }>
+            <Route index element={<Dashboard />} />
+            <Route path="deliveries" element={<Deliveries />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
         </Routes>
-        <Toaster position="top-right" />
-      </div>
-    </Router>
-  )
+      </Router>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
