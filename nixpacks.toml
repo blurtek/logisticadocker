@@ -1,0 +1,16 @@
+[providers]
+# Forzar que use Docker en lugar de detección automática
+providers = ["dockerfile"]
+
+[phases.setup]
+# No instalar nada automáticamente
+nixPkgs = []
+aptPkgs = []
+
+[phases.build]
+# No hacer build automático
+cmds = []
+
+[phases.start]
+# Usar nuestro script de inicio personalizado
+cmd = "./start.sh"

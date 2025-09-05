@@ -1,71 +1,60 @@
-# Dockerfile simplificado para Coolify
+# Dockerfile para Coolify - Panel MueblesWow
 FROM node:18-alpine
 
 # Instalar dependencias del sistema
-RUN apk add --no-cache nginx postgresql-client curl
-
-# Crear usuario postgres
-RUN adduser -D -s /bin/sh postgres
+RUN apk add --no-cache \
+    nginx \
+    postgresql-client \
+    curl \
+    bash
 
 # Crear directorios necesarios
-RUN mkdir -p /var/lib/postgresql/data /var/log/nginx /etc/nginx/ssl /app/logs
-RUN chown -R postgres:postgres /var/lib/postgresql/data
+RUN mkdir -p /app /var/log/nginx /var/cache/nginx /etc/nginx
 
-# Crear directorio de trabajo
+# Establecer directorio de trabajo
 WORKDIR /app
 
 # Copiar archivos de configuración
-COPY init-db.sql ./
-COPY env.example ./
-
-# Copiar configuración de Nginx
 COPY nginx-simple.conf /etc/nginx/nginx.conf
 COPY nginx/mime.types /etc/nginx/mime.types
+COPY start.sh /app/start.sh
+COPY init-db.sql /app/init-db.sql
+COPY env.example /app/.env
 
-# Copiar código del backend
-COPY backend/ ./backend/
-WORKDIR /app/backend
+# Hacer ejecutable el script de inicio
+RUN chmod +x /app/start.sh
 
 # Instalar dependencias del backend
+WORKDIR /app/backend
+COPY backend/package*.json ./
 RUN npm ci --only=production
 
-# Generar cliente de Prisma
-RUN npx prisma generate
-
-# Compilar backend
-RUN npm run build
-
-# Copiar código del frontend
-WORKDIR /app
-COPY frontend/ ./frontend/
-WORKDIR /app/frontend
+# Copiar código del backend
+COPY backend/ ./
 
 # Instalar dependencias del frontend
-RUN npm ci --only=production
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm ci
 
-# Construir frontend
+# Copiar código del frontend y hacer build
+COPY frontend/ ./
 RUN npm run build
 
-# Copiar código del panel público
-WORKDIR /app
-COPY public/ ./public/
-WORKDIR /app/public
-
 # Instalar dependencias del panel público
-RUN npm ci --only=production
+WORKDIR /app/public
+COPY public/package*.json ./
+RUN npm ci
 
-# Construir panel público
+# Copiar código del panel público y hacer build
+COPY public/ ./
 RUN npm run build
 
 # Volver al directorio raíz
 WORKDIR /app
 
-# Copiar script de inicio
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
-# Exponer puerto
+# Exponer puerto 80
 EXPOSE 80
 
 # Comando de inicio
-CMD ["/app/start.sh"]
+CMD ["./start.sh"]
