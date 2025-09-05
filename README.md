@@ -143,6 +143,18 @@ docker system prune -a
 
 ## 🚨 Solución de Problemas
 
+### Error de MIME types (JavaScript modules)
+Si ves el error: `Failed to load module script: Expected a JavaScript module script but the server responded with a MIME type of "application/octet-stream"`
+
+**Solución:**
+```bash
+# Reiniciar los servicios
+docker-compose restart frontend public nginx
+
+# Verificar MIME types
+./test-mime.sh
+```
+
 ### Puerto ya en uso
 ```bash
 # Ver qué proceso usa el puerto
@@ -167,6 +179,15 @@ docker-compose ps postgres
 
 # Ver logs de la base de datos
 docker-compose logs postgres
+```
+
+### Archivos estáticos no cargan
+```bash
+# Verificar configuración de Nginx
+docker-compose logs nginx
+
+# Reconstruir contenedores
+docker-compose up --build -d
 ```
 
 ## 📊 Monitoreo

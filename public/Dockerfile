@@ -8,12 +8,12 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependencias
-RUN npm ci
+RUN npm ci --only=production
 
 # Copiar código fuente
 COPY . .
 
-# Construir aplicación
+# Construir aplicación con configuración optimizada
 RUN npm run build
 
 # Etapa de producción con Nginx
@@ -24,6 +24,9 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copiar configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Crear directorio de logs
+RUN mkdir -p /var/log/nginx
 
 # Exponer puerto
 EXPOSE 80
