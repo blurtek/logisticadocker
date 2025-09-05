@@ -4,24 +4,15 @@ echo "🚀 Iniciando MueblesWow en Coolify..."
 
 # Configurar variables de entorno
 export NODE_ENV=production
-export DATABASE_URL="postgresql://muebleswow:${POSTGRES_PASSWORD:-muebleswow123}@localhost:5432/muebleswow"
 
-# Iniciar PostgreSQL
-echo "📊 Iniciando PostgreSQL..."
-su-exec postgres postgres -D /var/lib/postgresql/data &
-PG_PID=$!
-
-# Esperar a que PostgreSQL esté listo
-echo "⏳ Esperando PostgreSQL..."
-sleep 10
-
-# Verificar que PostgreSQL esté funcionando
-until pg_isready -h localhost -p 5432 -U muebleswow; do
-    echo "Esperando PostgreSQL..."
-    sleep 2
-done
-
-echo "✅ PostgreSQL listo"
+# Usar la base de datos de Coolify si está disponible
+if [ -n "$DATABASE_URL" ]; then
+    echo "📊 Usando base de datos de Coolify: $DATABASE_URL"
+else
+    # Fallback a configuración local
+    export DATABASE_URL="postgresql://muebleswow:${POSTGRES_PASSWORD:-muebleswow123}@localhost:5432/muebleswow"
+    echo "📊 Usando base de datos local: $DATABASE_URL"
+fi
 
 # Ejecutar migraciones
 echo "🗄️ Ejecutando migraciones..."
@@ -39,15 +30,17 @@ BACKEND_PID=$!
 
 # Esperar a que el backend esté listo
 echo "⏳ Esperando backend..."
-sleep 5
+sleep 10
 
 # Verificar que el backend esté funcionando
-until curl -f http://localhost:3001/health > /dev/null 2>&1; do
-    echo "Esperando backend..."
+for i in $(seq 1 30); do
+    if curl -f http://localhost:3001/health > /dev/null 2>&1; then
+        echo "✅ Backend listo"
+        break
+    fi
+    echo "Esperando backend... ($i/30)"
     sleep 2
 done
-
-echo "✅ Backend listo"
 
 # Iniciar Nginx
 echo "🌐 Iniciando Nginx..."
@@ -63,7 +56,7 @@ echo "   🔧 Backend API:     http://localhost/api/"
 # Función de limpieza
 cleanup() {
     echo "🛑 Deteniendo servicios..."
-    kill $BACKEND_PID $NGINX_PID $PG_PID 2>/dev/null
+    kill $BACKEND_PID $NGINX_PID 2>/dev/null
     exit 0
 }
 
