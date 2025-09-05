@@ -27,7 +27,7 @@ RUN chmod +x /app/start.sh
 # Instalar dependencias del backend
 WORKDIR /app/backend
 COPY backend/package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Copiar código del backend
 COPY backend/ ./
@@ -35,7 +35,7 @@ COPY backend/ ./
 # Instalar dependencias del frontend
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copiar código del frontend y hacer build
 COPY frontend/ ./
@@ -44,7 +44,7 @@ RUN npm run build
 # Instalar dependencias del panel público
 WORKDIR /app/public
 COPY public/package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copiar código del panel público y hacer build
 COPY public/ ./
