@@ -1,60 +1,54 @@
-# Dockerfile para Coolify - Panel MueblesWow
+# Dockerfile funcional para Coolify - MueblesWow
 FROM node:18-alpine
 
 # Instalar dependencias del sistema
 RUN apk add --no-cache \
     nginx \
-    postgresql-client \
-    curl \
-    bash
+    bash \
+    curl
 
-# Crear directorios necesarios
-RUN mkdir -p /app /var/log/nginx /var/cache/nginx /etc/nginx
-
-# Establecer directorio de trabajo
+# Crear directorio de aplicación
 WORKDIR /app
-
-# Copiar archivos de configuración primero
-COPY nginx-simple.conf /etc/nginx/nginx.conf
-COPY nginx/mime.types /etc/nginx/mime.types
-COPY start.sh /app/start.sh
-COPY init-db.sql /app/init-db.sql
-COPY env.example /app/.env
-
-# Hacer ejecutable el script de inicio
-RUN chmod +x /app/start.sh
 
 # Instalar dependencias del backend
-WORKDIR /app/backend
-COPY backend/package*.json ./
-RUN npm install --omit=dev
+COPY backend/package*.json ./backend/
+RUN cd backend && npm install
 
 # Copiar código del backend
-COPY backend/ ./
+COPY backend/ ./backend/
+
+# Compilar backend
+RUN cd backend && npm run build
 
 # Instalar dependencias del frontend
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm install
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install
 
-# Copiar código del frontend y hacer build
-COPY frontend/ ./
-RUN npm run build
+# Copiar código del frontend
+COPY frontend/ ./frontend/
+
+# Construir frontend
+RUN cd frontend && npm run build
 
 # Instalar dependencias del panel público
-WORKDIR /app/public
-COPY public/package*.json ./
-RUN npm install
+COPY public/package*.json ./public/
+RUN cd public && npm install
 
-# Copiar código del panel público y hacer build
-COPY public/ ./
-RUN npm run build
+# Copiar código del panel público
+COPY public/ ./public/
 
-# Volver al directorio raíz
-WORKDIR /app
+# Construir panel público
+RUN cd public && npm run build
+
+# Copiar script de inicio
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
+
+# Crear directorios para nginx
+RUN mkdir -p /var/log/nginx /var/cache/nginx
 
 # Exponer puerto 80
 EXPOSE 80
 
-# Comando de inicio
+# Iniciar aplicación
 CMD ["./start.sh"]
